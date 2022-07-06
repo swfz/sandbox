@@ -18,7 +18,7 @@ if [ -z $GH_PROJECT_ID ]; then
   exit 1
 fi
 
-target_pull_requests=$(gh pr list --json number,title,url,id --limit 50 --search "repo:swfz/til is:closed article in:title merged:<${PR_SEARCH_END_DATE} created:>${TARGET_DATE}")
+target_pull_requests=$(gh pr list --json number,title,url,id --limit 50 --search "repo:swfz/til is:closed article in:title merged:${TARGET_DATE}..${PR_SEARCH_END_DATE}")
 
 echo ${target_pull_requests} \
   | tr -d '[:cntrl:]' \
