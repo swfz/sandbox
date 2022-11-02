@@ -42,6 +42,8 @@ const getLatestWorkflowRuns = async (repo) => {
 
 const latestRuns = await getLatestWorkflowRuns(repo);
 
+// console.dir(latestRuns, {depth: null})
+
 let summary = [];
 
 for (let run of latestRuns) {
@@ -49,7 +51,9 @@ for (let run of latestRuns) {
   console.log(`Jobs: ${jobResponse.total_count}`);
 
   for (let job of jobResponse.jobs) {
+    console.log("check_run_url", job.check_run_url);
     const annotations = await request(`${job.check_run_url}/annotations`);
+    console.dir(annotations, {depth: null})
     if (annotations.length > 0) {
       summary = summary.concat([{workflow: run.name, url: run.html_url, annotations}])
     }
