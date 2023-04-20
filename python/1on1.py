@@ -6,10 +6,8 @@ import queue
 import os
 import soundfile as sf
 import openai
-# import whisper
 from pprint import pprint
 
-# openai.api_key = os.environ["OPENAI_API_KEY"]
 # 録音の設定
 samplerate = 48000  # サンプルレート
 threshold = 0.1  # 無音のしきい値
@@ -21,17 +19,12 @@ silence_samples = int(samplerate * silence_duration)
 # 録音データ取得
 microphone = sc.default_microphone()
 
-# print('[Info] Load whisper model...')
-# model = whisper.load_model("large")
-
 print('[Info] 1on1 Start!')
 
 def transcribe(filename):
-    # result = model.transcribe(filename)
     audio_file = open(filename, "rb")
     transcript = openai.Audio.transcribe("whisper-1", audio_file, language='ja')
 
-    # return codecs.decode(transcript['text'], 'unicode-escape')
     return transcript['text']
 
 messages=[]
@@ -41,7 +34,7 @@ def chatgpt(text):
 あなたは優秀なエンジニアリングマネージャーであり私のメンターです
 「テキスト」以下の設問に対し以下の条件で返答してください
 - 深掘りして私に質問し相談の状況の詳細を話させてより具体的な話をしてください
-- 回答は3つまでとしてください
+- 回答は1つまでとしてください
 - 確実な解決策がある場合は解決策を提示してください
 - 5回以上やり取りした結果、総合すると私はこういう人だねという特徴をフィードバックしてください
 テキスト:
@@ -57,19 +50,13 @@ def chatgpt(text):
 
     messages.append(prompt)
     print('[Info] GPT Thinking...............')
-    res = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=messages
-            )
+    res = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=messages)
 
     role = res.choices[0]["message"]["role"]
     content = res.choices[0]["message"]["content"]
-    m = res.choices[0]["message"]
 
-    messages.append({role: role, content: content})
-
-    print(f"{m['role']}: {m['content']}")
-    # pprint(m)
+    messages.append({"role": role, "content": content})
+    print(f"{role}: {content}")
 
     return m
 
@@ -139,4 +126,6 @@ except KeyboardInterrupt:
 # 結果を表示
 for i, segment in enumerate(segments):
     print(f"Segment {i + 1}: {segment}")
-    print(f"Messages {messages}")
+
+for i, m in enumerate(messages):
+    print(f"[{i}] {m['role']}: {m['content']}")
