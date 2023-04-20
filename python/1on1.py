@@ -8,6 +8,8 @@ import soundfile as sf
 import openai
 from pprint import pprint
 
+# moved. swfz/gpt-1on1
+
 # 録音の設定
 samplerate = 48000  # サンプルレート
 threshold = 0.1  # 無音のしきい値
