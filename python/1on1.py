@@ -1,9 +1,9 @@
 import numpy as np
+import json
+import os
 import soundcard as sc
 import threading
-import codecs
 import queue
-import os
 import soundfile as sf
 import openai
 from pprint import pprint
@@ -58,7 +58,6 @@ def chatgpt(text):
     messages.append({"role": role, "content": content})
     print(f"{role}: {content}")
 
-    return m
 
 def record_audio(queue):
     with microphone.recorder(samplerate=samplerate) as mic:
@@ -129,3 +128,6 @@ for i, segment in enumerate(segments):
 
 for i, m in enumerate(messages):
     print(f"[{i}] {m['role']}: {m['content']}")
+
+with open(f"logs/1on1-{os.getpid()}.json", "w") as f:
+    json.dump(messages, f)
