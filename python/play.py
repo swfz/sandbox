@@ -10,6 +10,6 @@ default_speaker = sc.default_speaker()
 
 with default_speaker.player(samplerate=samplerate) as sp:
     print(f"Reading...({read_wave_path})")
-    data, fs = sf.read(read_wave_path)
+    data, sr = sf.read(read_wave_path)
     print("Playing...\n")
     sp.play(data)
