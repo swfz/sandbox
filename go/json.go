@@ -12,7 +12,7 @@ type Sample struct {
 
 func mapJson() {
 	str := `{"hoge":1,"fuga":"piyo"}`
-	var data Sample
+	var data map[string]interface{}
 	if err := json.Unmarshal([]byte(str), &data); err != nil {
 		panic(err)
 	}
@@ -22,7 +22,7 @@ func mapJson() {
 
 func sliceJson() {
 	str := `[{"hoge":1,"fuga":"piyo"},{"hoge":2,"fuga":"piyopiyo"}]`
-	var data []Sample
+	var data []map[string]interface{}
 	if err := json.Unmarshal([]byte(str), &data); err != nil {
 		panic(err)
 	}
