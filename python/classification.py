@@ -11,7 +11,7 @@ def classify(markdown_file):
     mddata = read_content(markdown_file)
 
     system_content = """
-与えられた記事のを見て、どのような内容の記事なのか教えてください
+与えられた記事を見て、どのような内容の記事なのか教えてください
 
 また下記リストの内記事の内容が近いのはどの項目ですか？
 - 書評
@@ -20,6 +20,8 @@ def classify(markdown_file):
 - 開発組織のあれこれ
 - ポエム
 - release note
+
+また、扱っている内容の難易度はどのくらいですか？
 """
     res = openai.ChatCompletion.create(
             model="gpt-4",

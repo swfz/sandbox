@@ -29,6 +29,25 @@ def writing(markdown_file):
 
         print(res.choices[0]["message"]["content"].strip())
 
+def convert(markdown_file):
+    with open(markdown_file, 'r', encoding="utf-8") as f:
+        mddata = f.read()
+
+        system_content = """
+あなたは技術記事の執筆を行うソフトウェアエンジニアです。
+与えられたテキストを文語体で書いてください
+"""
+        res = openai.ChatCompletion.create(
+                model="gpt-4",
+                messages=[
+                    {"role": "system", "content": system_content},
+                    {"role": "user", "content": mddata},
+                ]
+            )
+
+        print(res.choices[0]["message"]["content"].strip())
+
+
 
 def summarize(markdown_file):
     with open(markdown_file, 'r', encoding="utf-8") as f:
@@ -69,13 +88,39 @@ def tags(markdown_file):
 
         print(res.choices[0]["message"]["content"].strip())
 
+def calibration(markdown_file):
+    with open(markdown_file, 'r', encoding="utf-8") as f:
+        mddata = f.read()
 
+        system_content = """
+あなたは技術雑誌の編集者です。
+与えられた記事のテキストを校正し、修正した方が良い箇所を指摘してください
+また、指摘箇所と指摘後の行を並べてDiffファイル形式で出力してください
+"""
+        res = openai.ChatCompletion.create(
+                model="gpt-4",
+                messages=[
+                    {"role": "system", "content": system_content},
+                    {"role": "user", "content": mddata},
+                ]
+            )
+
+        print(res.choices[0]["message"]["content"].strip())
+
+print(subcommand)
+print('----------')
 
 if subcommand == "writing":
     writing(markdown_file)
+
+if subcommand == "convert":
+    convert(markdown_file)
 
 if subcommand == "summarize":
     summarize(markdown_file)
 
 if subcommand == "tags":
     tags(markdown_file)
+
+if subcommand == "calibration":
+    calibration(markdown_file)
