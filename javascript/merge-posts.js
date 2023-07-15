@@ -66,7 +66,7 @@ const createJournalAst = (posts) => {
 }
 
 const getJournals = (journals) => {
-  return journals.map(j => toMarkdown(j.children[0]).replace(/\n$/, ''))
+  return journals.children ? journals.map(j => toMarkdown(j.children[0]).replace(/\n$/, '')) : [];
 }
 
 const comparePost = (a, b, targetDate) => {
@@ -100,7 +100,7 @@ const main = async() => {
   console.warn(`${posts.length}: 対象日のSlack投稿`);
 
   const children = ast.children.reduce((acc, item, i, array) => {
-    if(array[i-1]?.type === 'heading' && array[i-1].children[0]?.value === 'Journal' && item.type !== 'heading') {
+    if (array[i-1]?.type === 'heading' && array[i-1].children[0]?.value === 'Journal') {
       const journals = getJournals(item.children);
       console.warn(`${journals.length}: Journal`);
 
