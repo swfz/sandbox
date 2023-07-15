@@ -100,7 +100,7 @@ const main = async() => {
   console.warn(`${posts.length}: 対象日のSlack投稿`);
 
   const children = ast.children.reduce((acc, item, i, array) => {
-    if(array[i-1]?.type === 'heading' && array[i-1].children[0]?.value === 'Journal') {
+    if(array[i-1]?.type === 'heading' && array[i-1].children[0]?.value === 'Journal' && item.type !== 'heading') {
       const journals = getJournals(item.children);
       console.warn(`${journals.length}: Journal`);
 
