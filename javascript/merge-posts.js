@@ -23,7 +23,7 @@ const getSlackMessages = async(client, channelId, targetDate) => {
     channel: channelId
   });
 
-  console.warn(`${result.messages.length}件のSlack投稿を取得しました。`);
+  console.warn(`${result.messages.length}: Slack投稿`);
 
   const conversationHistory = result.messages;
 
@@ -97,16 +97,16 @@ const main = async() => {
   // console.dir(ast, {depth: null});
 
   const posts = await getSlackMessages(client, slackChannelId, targetDate);
-  console.warn(`${posts.length}件のSlack投稿を取得しました。`);
+  console.warn(`${posts.length}: 対象日のSlack投稿`);
 
   const children = ast.children.reduce((acc, item, i, array) => {
     if(array[i-1]?.type === 'heading' && array[i-1].children[0]?.value === 'Journal') {
       const journals = getJournals(item.children);
-      console.warn(`${journals.length}件のJournalを取得しました。`);
+      console.warn(`${journals.length}: Journal`);
 
       // itemの中身をpostedとMergeする、時、分でソートした内容を反映させる
       const mergedJournals = mergePosts(posts, journals, targetDate);
-      console.warn(`${mergedJournals.length}件のJournalをマージしました。`);
+      console.warn(`${mergedJournals.length}: Merge後Journal`);
 
       console.log(mergedJournals.map(j => `- ${j}`).join("\n"));
 
