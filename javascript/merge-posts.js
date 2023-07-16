@@ -66,7 +66,7 @@ const createJournalAst = (posts) => {
 }
 
 const getJournals = (journals) => {
-  return journals.children ? journals.map(j => toMarkdown(j.children[0]).replace(/\n$/, '')) : [];
+  return journals.length > 0 ? journals.map(j => toMarkdown(j.children[0]).replace(/\n$/, '')) : [];
 }
 
 const comparePost = (a, b, targetDate) => {
@@ -101,7 +101,7 @@ const main = async() => {
 
   const children = ast.children.reduce((acc, item, i, array) => {
     if (array[i-1]?.type === 'heading' && array[i-1].children[0]?.value === 'Journal') {
-      const journals = getJournals(item.children);
+      const journals = item.type === 'list' ? getJournals(item.children) : [];
       console.warn(`${journals.length}: Journal`);
 
       // itemの中身をpostedとMergeする、時、分でソートした内容を反映させる
