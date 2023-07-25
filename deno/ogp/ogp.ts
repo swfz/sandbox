@@ -71,4 +71,4 @@ const handler = async (request: Request): Promise<Response> => {
 };
 
 console.log(`HTTP webserver running. Access it at: http://localhost:8080/`);
-await serve(handler, { port });
+Deno.serve({port}, handler);
