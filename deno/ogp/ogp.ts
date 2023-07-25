@@ -16,6 +16,31 @@ const renderPrefix = (ctx: CanvasRenderingContext2D, x: number, y: number) => {
   ctx.fillText('$', x, y);
 };
 
+const breakLines = (ctx: CanvasRenderingContext2D, title: string, maxWidth: number): string[] => {
+  const words = title.split('');
+  console.log(words);
+  
+
+  const processWord = (words, line='', result=[]) => {
+    // console.log('words---------------');
+    // console.log(words);
+    // console.log(line);
+    // console.log(result);
+    // console.log('result---------------');
+    if (words.length === 0) return [...result, line];
+
+    const testLine = `${line}${words[0]}`;
+    const testWidth = ctx.measureText(testLine).width;
+    // console.log(`${testWidth} > ${maxWidth} ?`);
+
+    return testWidth > maxWidth
+      ? processWord(words.slice(1), `${words[0]}`, [...result, line])
+      : processWord(words.slice(1), testLine, result);
+  }
+
+  return processWord(words);
+}
+
 const handler = async (request: Request): Promise<Response> => {
   const url = new URL(request.url);
   const title = url.searchParams.get("title") ?? 'No Title';
@@ -30,19 +55,13 @@ const handler = async (request: Request): Promise<Response> => {
   const ctx = canvas.getContext("2d");
 
   ctx.fillStyle = '#2f3e50';
-  // ctx.fillStyle = '#666';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // const font = await Deno.readFile('/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc');
   const font = await Deno.readFile('./NotoSansCJK-Regular.ttc');
   canvas.loadFont(font, {
     family: 'notosans',
   });
   ctx.font = "50pt notosans";
-
-  // ctx.fillStyle = '#222222';
-  // ctx.fillRect(0,0,1200,50);
-  // ctx.fillRect(0,580,1200,630);
 
   // TODO: タイトル 改行判定
   // TODO: 色再度見る
@@ -57,8 +76,6 @@ const handler = async (request: Request): Promise<Response> => {
     return [...acc, x];
   }, [0]);
 
-  console.log(startPositions);
-
   terminalHeaders.forEach((text, i) => {
     ctx.fillStyle = colors[i];
     ctx.fillRect(startPositions[i], 30, ctx.measureText(text).width, 80);
@@ -71,11 +88,21 @@ const handler = async (request: Request): Promise<Response> => {
   renderPrefix(ctx, 10, 200);
 
   ctx.fillStyle = '#AAAAAA';
-  ctx.fillText('title', 80, 200);
-  ctx.fillStyle = '#FFFFFF';
-  ctx.fillText(title, 50, 300);
+  ctx.fillText('article --title \\', 80, 200);
+  // ctx.fillStyle = '#FFFFFF';
+  // ctx.fillText(title, 50, 300);
 
-  console.log(ctx.measureText(title))
+  const titleLines = breakLines(ctx, title, 1150);
+
+  ctx.fillStyle = '#FFFFFF';
+
+  titleLines.forEach((line, i) => {
+    ctx.fillText(line, 50, 300 + i*100)
+  });
+
+  const lastLineWidth = ctx.measureText(titleLines.at(-1)).width;
+  const cursorX = 50 + lastLineWidth + 10;
+  const cursorY = 200 + 30 + (titleLines.length -1) * 100;
 
   // renderPrefix(ctx, 10, 400);
 
@@ -86,9 +113,10 @@ const handler = async (request: Request): Promise<Response> => {
     ctx.fillText(tags.join(' '), 50, 500);
   }
 
-  renderPrefix(ctx, 10, 600);
-  ctx.fillStyle = '#e95295';
-  ctx.fillRect(70,520,50,100);
+  // renderPrefix(ctx, 10, 600);
+  ctx.fillStyle = '#ec80f7';
+  // ctx.fillRect(70,520,50,100);
+  ctx.fillRect(cursorX, cursorY, 50, 100);
 
 
   const headers = new Headers();
