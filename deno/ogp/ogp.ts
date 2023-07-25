@@ -19,19 +19,12 @@ const renderPrefix = (ctx: CanvasRenderingContext2D, x: number, y: number) => {
 const breakLines = (ctx: CanvasRenderingContext2D, title: string, maxWidth: number): string[] => {
   const words = title.split('');
   console.log(words);
-  
 
   const processWord = (words, line='', result=[]) => {
-    // console.log('words---------------');
-    // console.log(words);
-    // console.log(line);
-    // console.log(result);
-    // console.log('result---------------');
     if (words.length === 0) return [...result, line];
 
     const testLine = `${line}${words[0]}`;
     const testWidth = ctx.measureText(testLine).width;
-    // console.log(`${testWidth} > ${maxWidth} ?`);
 
     return testWidth > maxWidth
       ? processWord(words.slice(1), `${words[0]}`, [...result, line])
@@ -44,11 +37,7 @@ const breakLines = (ctx: CanvasRenderingContext2D, title: string, maxWidth: numb
 const handler = async (request: Request): Promise<Response> => {
   const url = new URL(request.url);
   const title = url.searchParams.get("title") ?? 'No Title';
-  const tagParam = url.searchParams.get("tags") ?? null;
 
-  const tags = tagParam ? tagParam.split(',') : [];
-
-  console.log(title);
   const [width, height] = [1200, 630];
 
   const canvas = createCanvas(width, height);
@@ -62,9 +51,6 @@ const handler = async (request: Request): Promise<Response> => {
     family: 'notosans',
   });
   ctx.font = "50pt notosans";
-
-  // TODO: タイトル 改行判定
-  // TODO: 色再度見る
 
   const terminalHeaders = ['swfz', 'til'];
   const colors = ['#6797e8', '#a4e083']
@@ -82,20 +68,16 @@ const handler = async (request: Request): Promise<Response> => {
     ctx.fillStyle = '#EFEFEF';
     ctx.fillText(text, startPositions[i] + 50, 90);
   });
-  terminalHeaders.forEach((text, i) => {
+  terminalHeaders.forEach((_, i) => {
     renderTriangle(ctx, startPositions[i+1], 30, colors[i])
   });
   renderPrefix(ctx, 10, 200);
 
   ctx.fillStyle = '#AAAAAA';
   ctx.fillText('article --title \\', 80, 200);
-  // ctx.fillStyle = '#FFFFFF';
-  // ctx.fillText(title, 50, 300);
 
   const titleLines = breakLines(ctx, title, 1150);
-
   ctx.fillStyle = '#FFFFFF';
-
   titleLines.forEach((line, i) => {
     ctx.fillText(line, 50, 300 + i*100)
   });
@@ -104,20 +86,8 @@ const handler = async (request: Request): Promise<Response> => {
   const cursorX = 50 + lastLineWidth + 10;
   const cursorY = 200 + 30 + (titleLines.length -1) * 100;
 
-  // renderPrefix(ctx, 10, 400);
-
-  if(tagParam && tagParam.length > 0) {
-    ctx.fillStyle = '#AAAAAA';
-    ctx.fillText('tags', 80, 400);
-    ctx.fillStyle = '#FFFFFF';
-    ctx.fillText(tags.join(' '), 50, 500);
-  }
-
-  // renderPrefix(ctx, 10, 600);
   ctx.fillStyle = '#ec80f7';
-  // ctx.fillRect(70,520,50,100);
   ctx.fillRect(cursorX, cursorY, 50, 100);
-
 
   const headers = new Headers();
   headers.set("content-type", "image/png");
