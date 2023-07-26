@@ -44,10 +44,6 @@ const breakLines = (ctx: CanvasRenderingContext2D, title: string, maxWidth: numb
   const segmenter = new TinySegmenter();
   const segments = segmenter.segment(title);
 
-  console.log(segments);
-  // const words = title.split('');
-  // console.log(words);
-
   const processWord = (segments, line='', result=[]) => {
     if (segments.length === 0) return [...result, line];
 
@@ -139,7 +135,6 @@ const handler = async (request: Request): Promise<Response> => {
     ctx.fillRect(0, 540, 1200, 80);
     ctx.fillStyle = '#999';
     ctx.fillText('Tags', 10, 600);
-    // renderTriangle(ctx, 600, 540, '#999', 'left');
 
     const tagsStartPositions = tags.reverse().reduce((acc, tag, i) => {
       const measured = measureTextWithASCII(ctx, tag);
@@ -147,8 +142,6 @@ const handler = async (request: Request): Promise<Response> => {
 
       return [...acc, x];
     }, [1200]).reverse();
-
-    console.log(tagsStartPositions);
 
     const tagColors = colors;
     tags.reverse().forEach((tag, i) => {
