@@ -67,23 +67,22 @@ const handler = async (request: Request): Promise<Response> => {
   const tagsParam = url.searchParams.get("tags");
   const tags = tagsParam ? tagsParam.split(',') : [];
 
+  console.log('title:', title);
+
   const [width, height] = [1200, 630];
 
   const canvas = createCanvas(width, height);
   const ctx = canvas.getContext("2d");
-
-  ctx.fillStyle = '#313d4f';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  console.log(ctx.font);
-  ctx.font = "50pt monospace";
-  console.log('monospace:', ctx.measureText(title).width);
 
   const font = await Deno.readFile('./NotoSansCJK-Regular.ttc');
   canvas.loadFont(font, {
     family: 'notosans',
   });
   ctx.font = "50pt notosans";
+
+  // background
+  ctx.fillStyle = '#313d4f';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   // StatusLine
   const terminalHeaders = ['swfz', 'til'];
@@ -111,7 +110,6 @@ const handler = async (request: Request): Promise<Response> => {
   ctx.fillStyle = '#888';
   ctx.fillText('article --title \\', 80, textLineBase * 2);
 
-  console.log('title:', ctx.measureText(title).width);
 
   // Title
   const titleLines = breakLines(ctx, title, 1150);
@@ -123,7 +121,7 @@ const handler = async (request: Request): Promise<Response> => {
   // Cursor
   const lastLineWidth = measureTextWithASCII(ctx, titleLines.at(-1));
   const cursorX = 50 + lastLineWidth + 10;
-  const cursorY = 200 + 30 + (titleLines.length -1) * 100;
+  const cursorY = (textLineBase * 2) + 30 + (titleLines.length -1) * textLineBase;
 
   ctx.fillStyle = '#ec80f7';
   ctx.fillRect(cursorX, cursorY, 50, 100);
