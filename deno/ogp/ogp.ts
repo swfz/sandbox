@@ -69,14 +69,21 @@ interface StatusLineItem {
   color: string;
   width: number;
   position: ItemPosition;
+  direction: 'left'|'right';
 }
 
-const renderStatusLineItem = (ctx: CanvasRenderingContext2D, item: StatusLineItem, index: number) => {
-  renderTriangle(ctx, item.position.triangle, 540, item.color, 'left')
+interface FixedPosition {
+  y: number;
+  height: number;
+  textY: number;
+}
+
+const renderStatusLineItem = (ctx: CanvasRenderingContext2D, item: StatusLineItem, fixed: FixedPosition, index: number) => {
+  renderTriangle(ctx, item.position.triangle, fixed.y, item.color, item.direction)
   ctx.fillStyle = item.color;
-  ctx.fillRect(item.position.rect, 540, item.width, 80);
+  ctx.fillRect(item.position.rect, fixed.y, item.width, fixed.height);
   ctx.fillStyle = '#555';
-  ctx.fillText(item.text, item.position.text, 600);
+  ctx.fillText(item.text, item.position.text, fixed.textY);
 }
 
 const renderBottomStatusLine = (ctx: CanvasRenderingContext2D, texts: string[]) => {
@@ -94,6 +101,12 @@ const renderBottomStatusLine = (ctx: CanvasRenderingContext2D, texts: string[]) 
     return [...acc, x];
   }, [1200]).reverse();
 
+  const fixed = {
+    y: 540,
+    height: 80,
+    textY: 600
+  }
+
   texts.reverse().forEach((tag, i) => {
     const item = {
       text: tag,
@@ -103,14 +116,45 @@ const renderBottomStatusLine = (ctx: CanvasRenderingContext2D, texts: string[]) 
         triangle: tagsStartPositions[i],
         text: tagsStartPositions[i]
       },
+      direction: 'left' as const,
       width: measureTextWithASCII(ctx, tag) + (triangleBase * (texts.length - i)),
     };
-    renderStatusLineItem(ctx, item, i);
+    renderStatusLineItem(ctx, item, fixed, i);
   });
 }
 
 const renderTopStatusLine = (ctx: CanvasRenderingContext2D, texts: string[]) => {
+  const colors = ['#6797e8', '#a4e083', '#efb24a', '#ec7563'];
 
+  const startPositions = texts.reduce((acc, text) => {
+    const measured = measureTextWithASCII(ctx, text);
+    const x = acc.at(-1) + measured;
+
+    return [...acc, x];
+  }, [0]);
+
+  const fixed = {
+    y: 30,
+    height: 80,
+    textY: 90,
+  };
+
+  texts.map((text, i) => {
+    const item = {
+      text: text,
+      color: colors[i],
+      position: {
+        rect: startPositions[i],
+        triangle: startPositions[i+1] + (triangleBase * i),
+        text: startPositions[i] + (triangleBase * i)
+      },
+      direction: 'right' as const,
+      width: measureTextWithASCII(ctx, text) + (triangleBase * i)
+    }
+    return item;
+  }).reverse().forEach((item, i) => {
+    renderStatusLineItem(ctx, item, fixed, i)
+  });
 }
 
 const handler = async (request: Request): Promise<Response> => {
@@ -138,31 +182,12 @@ const handler = async (request: Request): Promise<Response> => {
 
   // StatusLine
   const terminalHeaders = ['swfz', 'til'];
-  // renderStatusLine(ctx, terminalHeaders);
-  const colors = ['#6797e8', '#a4e083', '#efb24a', '#ec7563'];
-
-  const startPositions = terminalHeaders.reduce((acc, text) => {
-    const measured = measureTextWithASCII(ctx, text);
-    const x = acc.at(-1) + measured;
-
-    return [...acc, x];
-  }, [0]);
-
-  terminalHeaders.forEach((text, i) => {
-    ctx.fillStyle = colors[i];
-    ctx.fillRect(startPositions[i], 30, measureTextWithASCII(ctx, text), 80);
-    ctx.fillStyle = '#555';
-    ctx.fillText(text, startPositions[i] + 10 + (i * 40), 90);
-  });
-  terminalHeaders.forEach((_, i) => {
-    renderTriangle(ctx, startPositions[i+1], 30, colors[i], 'right')
-  });
-  renderPrefix(ctx, 10, textLineBase * 2);
+  renderTopStatusLine(ctx, terminalHeaders);
 
   // Command
+  renderPrefix(ctx, 10, textLineBase * 2);
   ctx.fillStyle = '#888';
   ctx.fillText('article --title \\', 80, textLineBase * 2);
-
 
   // Title
   const titleLines = breakLines(ctx, title, 1150);
