@@ -31,7 +31,7 @@ const selectASCII = (str: string) => {
   return matches ?? [];
 }
 
-// ASCII文字列を含めてmeasureTextを通すとASCII文字列の分だけマルチバイトで判断されている？ようなので半分にする
+// ASCII文字列を含めてmeasureTextを通すとASCII文字列の分だけマルチバイトで判断されている？ようなので実測した結果6割ほどだったので4割分は減算する
 const measureTextWithASCII = (ctx: CanvasRenderingContext2D, str: string) => {
   const fullWidth = ctx.measureText(str).width;
   const ascii = selectASCII(str);
@@ -58,7 +58,59 @@ const breakLines = (ctx: CanvasRenderingContext2D, title: string, maxWidth: numb
   return processWord(segments);
 }
 
-const renderStatusLine = (ctx: CanvasRenderingContext2D) => {
+interface ItemPosition {
+  triangle: number;
+  rect: number;
+  text: number;
+}
+
+interface StatusLineItem {
+  text: string;
+  color: string;
+  width: number;
+  position: ItemPosition;
+}
+
+const renderStatusLineItem = (ctx: CanvasRenderingContext2D, item: StatusLineItem, index: number) => {
+  renderTriangle(ctx, item.position.triangle, 540, item.color, 'left')
+  ctx.fillStyle = item.color;
+  ctx.fillRect(item.position.rect, 540, item.width, 80);
+  ctx.fillStyle = '#555';
+  ctx.fillText(item.text, item.position.text, 600);
+}
+
+const renderBottomStatusLine = (ctx: CanvasRenderingContext2D, texts: string[]) => {
+  const colors = ['#6797e8', '#a4e083', '#efb24a', '#ec7563'];
+
+  ctx.fillStyle = '#333';
+  ctx.fillRect(0, 540, 1200, 80);
+  ctx.fillStyle = '#999';
+  ctx.fillText('Tags', 10, 600);
+
+  const tagsStartPositions = texts.reverse().reduce((acc, tag, i) => {
+    const textWidth = measureTextWithASCII(ctx, tag);
+    const x = acc.at(-1) - textWidth - (triangleBase * i);
+
+    return [...acc, x];
+  }, [1200]).reverse();
+
+  texts.reverse().forEach((tag, i) => {
+    const item = {
+      text: tag,
+      color: colors[i],
+      position: {
+        rect: tagsStartPositions[i],
+        triangle: tagsStartPositions[i],
+        text: tagsStartPositions[i]
+      },
+      width: measureTextWithASCII(ctx, tag) + (triangleBase * (texts.length - i)),
+    };
+    renderStatusLineItem(ctx, item, i);
+  });
+}
+
+const renderTopStatusLine = (ctx: CanvasRenderingContext2D, texts: string[]) => {
+
 }
 
 const handler = async (request: Request): Promise<Response> => {
@@ -86,6 +138,7 @@ const handler = async (request: Request): Promise<Response> => {
 
   // StatusLine
   const terminalHeaders = ['swfz', 'til'];
+  // renderStatusLine(ctx, terminalHeaders);
   const colors = ['#6797e8', '#a4e083', '#efb24a', '#ec7563'];
 
   const startPositions = terminalHeaders.reduce((acc, text) => {
@@ -128,29 +181,7 @@ const handler = async (request: Request): Promise<Response> => {
 
   // タイトル表示を優先させるため、タイトルが3行までの場合はTagも表示させる
   if (tags.length > 0 && titleLines.length <= 3) {
-    // Tags
-    ctx.fillStyle = '#333';
-    ctx.fillRect(0, 540, 1200, 80);
-    ctx.fillStyle = '#999';
-    ctx.fillText('Tags', 10, 600);
-
-    const tagsStartPositions = tags.reverse().reduce((acc, tag, i) => {
-      const measured = measureTextWithASCII(ctx, tag);
-      const x = acc.at(-1) - measured - (triangleBase * i);
-
-      return [...acc, x];
-    }, [1200]).reverse();
-
-    const tagColors = colors;
-    tags.reverse().forEach((tag, i) => {
-      ctx.fillStyle = tagColors[i];
-      ctx.fillRect(tagsStartPositions[i], 540, measureTextWithASCII(ctx, tag) + (triangleBase * (tags.length - i)), 80);
-      ctx.fillStyle = '#555';
-      ctx.fillText(tag, tagsStartPositions[i], 600);
-    });
-    tags.reverse().forEach((_, i) => {
-      renderTriangle(ctx, tagsStartPositions[i], 540, tagColors[i], 'left')
-    });
+    renderBottomStatusLine(ctx, tags);
   }
 
   const headers = new Headers();
