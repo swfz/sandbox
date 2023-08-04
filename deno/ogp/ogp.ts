@@ -54,6 +54,8 @@ const breakLines = (
   const segmenter = new TinySegmenter();
   const segments = segmenter.segment(title);
 
+  // const segments = title.split("");
+
   const processWord = (segments, line = "", result = []) => {
     if (segments.length === 0) return [...result, line];
 
@@ -222,6 +224,9 @@ const handler = async (request: Request): Promise<Response> => {
   titleLines.forEach((line, i) => {
     ctx.fillText(line, 50, 300 + i * textLineBase);
   });
+
+  ctx.fillStyle = "#FFFFFF";
+  ctx.fillText(title, 50, 300);
 
   // Cursor
   const lastLineWidth = measureTextWithASCII(ctx, titleLines.at(-1));
