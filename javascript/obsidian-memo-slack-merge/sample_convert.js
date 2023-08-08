@@ -21,4 +21,4 @@ const options = {
 
 console.log(replacer(toMarkdown(ast, options)))
 
-fs.writeFileSync('sample_stored.md', toMarkdown(ast, options));
+fs.writeFileSync('sample_stored.md', replacer(toMarkdown(ast, options)));
