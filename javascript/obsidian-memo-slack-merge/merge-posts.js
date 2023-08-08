@@ -3,12 +3,17 @@ import dayjs from 'dayjs';
 
 import {fromMarkdown} from 'mdast-util-from-markdown'
 import {toMarkdown} from 'mdast-util-to-markdown'
+import {frontmatter} from 'micromark-extension-frontmatter'
+import {frontmatterFromMarkdown, frontmatterToMarkdown} from 'mdast-util-frontmatter'
 import * as fs from 'fs'
 
 const markdownToAst = (filename) => {
   const markdown = fs.readFileSync(filename);
 
-  return fromMarkdown(markdown)
+  return fromMarkdown(markdown, {
+    extensions: [frontmatter(['yaml'])],
+    mdastExtensions: [frontmatterFromMarkdown(['yaml'])]
+  });
 }
 
 const transformer = (message) => {
@@ -94,7 +99,7 @@ const main = async() => {
 
   // MD全体のAST
   const ast = markdownToAst(markdownFilename);
-  // console.dir(ast, {depth: null});
+  console.dir(ast, {depth: null});
 
   const posts = await getSlackMessages(client, slackChannelId, targetDate);
   console.warn(`${posts.length}: 対象日のSlack投稿`);
@@ -118,10 +123,20 @@ const main = async() => {
     return [...acc, item];
   }, [])
 
-  // const afterAst = {...ast, ...{children}}
+  const afterAst = {...ast, ...{children}}
   // dir(afterAst, {depth: null});
 
-  // fs.writeFileSync(markdownFilename, toMarkdown(afterAst, {bullet: '-'}));
+  // FIXME: unsafeオプションを使ってエスケープさせないようにしたかったが、うまくいかなかったため場当たり的な対応をしている
+  const replacer = (str) => {
+    return str.replace(/\\\[/g, '[').replace(/\\_/g, '_');
+  }
+
+  const options = {
+    bullet: '-',
+    extensions: [frontmatterToMarkdown(['yaml'])]
+  };
+  // fs.writeFileSync('stored.md', replacer(toMarkdown(afterAst, options)));
+  // fs.writeFileSync(markdownFilename, replacer(toMarkdown(afterAst, options)));
 }
 
 main()
