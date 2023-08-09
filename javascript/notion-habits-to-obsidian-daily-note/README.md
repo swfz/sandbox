@@ -1,4 +1,4 @@
-#  notion to obsidian daily note
+# notion habits to obsidian daily note
 
 Notionに日毎で習慣化のプロパティが存在するページがあり、それを集約したDatabaseがある
 
