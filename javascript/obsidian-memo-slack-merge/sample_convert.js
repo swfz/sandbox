@@ -6,7 +6,7 @@ import * as fs from 'fs'
 import { dir } from 'console';
 
 const replacer = (str) => {
-  return str.replace(/\\\[/g, '[').replace(/\\_/g, '_');
+  return str.replace(/\\\[/g, '[').replace(/\\_/g, '_').replace(/\\&/g, '&').replace(/\\\*/g, '*');
 }
 
 const ast = fromMarkdown(fs.readFileSync('sample.md'), {
