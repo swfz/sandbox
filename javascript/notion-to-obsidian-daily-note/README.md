@@ -12,7 +12,7 @@ Databaseに存在する各日にちの習慣化リストを取得しObsidianのD
 このデータを
 
 - daily note
-![alt](https://)
+![alt](daily_note.png)
 
 こんな感じにする
 
