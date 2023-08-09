@@ -85,13 +85,16 @@ const createHabitsHeadingAst = () => {
   }
 }
 
-
 const mergeDailyNote = async (directory, properties) => {
   const date = properties.find((p) => p.name === 'date').value.start;
   const obsidianDailyNoteFilename = `${directory}/${date}.md`;
 
-  const habits = properties.filter((p) => p.name !== 'date');
+  const existMarkdown = fs.existsSync(obsidianDailyNoteFilename);
+  if (!existMarkdown) {
+    fs.writeFileSync(obsidianDailyNoteFilename, '');
+  }
 
+  const habits = properties.filter((p) => p.name !== 'date');
   const ast = markdownToAst(obsidianDailyNoteFilename);
 
   const habitsAst = createHabitsAst(habits);
