@@ -1,0 +1,12 @@
+{
+  "dependencies": {
+    "@notionhq/client": "^2.2.10",
+    "mdast-util-from-markdown": "^2.0.0",
+    "mdast-util-frontmatter": "^2.0.0",
+    "mdast-util-to-markdown": "^2.1.0",
+    "micromark-extension-frontmatter": "^2.0.0",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.1.6"
+  },
+  "type": "module"
+}
