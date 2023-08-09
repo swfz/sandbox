@@ -23,7 +23,7 @@ Databaseに存在する各日にちの習慣化リストを取得しObsidianのD
     - DailyNoteが存在するディレクトリはコマンドライン引数で渡す
 
 ```
-habits.js /path/to/obsidian/daily_note
+node habits.js /path/to/obsidian/daily_note
 ```
 
 ## 他
