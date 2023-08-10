@@ -16,6 +16,24 @@ const markdownToAst = (filename) => {
   });
 }
 
+const astToMarkdown = (ast) => {
+  // FIXME: unsafeオプションを使ってエスケープさせないようにしたかったが、うまくいかなかったため場当たり的な対応をしている
+  const replacer = (str) => {
+    return str
+      .replace(/\\\[/g, "[")
+      .replace(/\\_/g, "_")
+      .replace(/\\&/g, "&")
+      .replace(/\\\*/g, "*");
+  };
+
+  const options = {
+    bullet: '-',
+    extensions: [frontmatterToMarkdown(['yaml'])]
+  }
+
+  return toMarkdown(ast, options);
+}
+
 const transformer = (message) => {
   const {text, ts} = message;
   const time = dayjs.unix(ts).format('HH:mm');
@@ -122,21 +140,7 @@ const main = async() => {
   const afterAst = {...ast, ...{children}}
   // dir(afterAst, {depth: null});
 
-  // FIXME: unsafeオプションを使ってエスケープさせないようにしたかったが、うまくいかなかったため場当たり的な対応をしている
-  const replacer = (str) => {
-    return str
-      .replace(/\\\[/g, "[")
-      .replace(/\\_/g, "_")
-      .replace(/\\&/g, "&")
-      .replace(/\\\*/g, "*");
-  };
-
-  const options = {
-    bullet: '-',
-    extensions: [frontmatterToMarkdown(['yaml'])]
-  };
-
-  fs.writeFileSync(markdownFilename, replacer(toMarkdown(afterAst, options)));
+  fs.writeFileSync(markdownFilename, astToMarkdown(afterAst));
 }
 
 main()
