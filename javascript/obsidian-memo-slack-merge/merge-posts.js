@@ -104,39 +104,39 @@ const main = async() => {
   const posts = await getSlackMessages(client, slackChannelId, targetDate);
   console.warn(`${posts.length}: 対象日のSlack投稿`);
 
-  const children = ast.children.reduce((acc, item, i, array) => {
-    if (array[i-1]?.type === 'heading' && array[i-1].children[0]?.value === 'Journal') {
-      const journals = item.type === 'list' ? getJournals(item.children) : [];
-      console.warn(`${journals.length}: Journal`);
+  const targetHeaderIndex = ast.children.findIndex(item => item.type === 'heading' && item.children[0]?.value === 'Journal');
+  const journals = getJournals(ast.children[targetHeaderIndex + 1].children);
+  console.warn(`${journals.length}: Journal`);
 
-      // itemの中身をpostedとMergeする、時、分でソートした内容を反映させる
-      const mergedJournals = mergePosts(posts, journals, targetDate);
-      console.warn(`${mergedJournals.length}: Merge後Journal`);
+  // すでに記入されているMemosの中身をpostedとMergeする、時、分でソートした内容を反映させる
+  const mergedJournals = mergePosts(posts, journals, targetDate);
+  console.warn(`${mergedJournals.length}: Merge後Journal`);
+  console.log(mergedJournals.map(j => `- ${j}`).join("\n"));
 
-      console.log(mergedJournals.map(j => `- ${j}`).join("\n"));
-
-      const mergedItem = createJournalAst(mergedJournals);
-
-      return [...acc, mergedItem];
-    }
-
-    return [...acc, item];
-  }, [])
+  const children = [
+    ...ast.children.slice(0, targetHeaderIndex + 1),
+    createJournalAst(mergedJournals),
+    ...ast.children.slice(targetHeaderIndex + 2)
+  ];
 
   const afterAst = {...ast, ...{children}}
   // dir(afterAst, {depth: null});
 
   // FIXME: unsafeオプションを使ってエスケープさせないようにしたかったが、うまくいかなかったため場当たり的な対応をしている
   const replacer = (str) => {
-    return str.replace(/\\\[/g, '[').replace(/\\_/g, '_');
-  }
+    return str
+      .replace(/\\\[/g, "[")
+      .replace(/\\_/g, "_")
+      .replace(/\\&/g, "&")
+      .replace(/\\\*/g, "*");
+  };
 
   const options = {
     bullet: '-',
     extensions: [frontmatterToMarkdown(['yaml'])]
   };
-  // fs.writeFileSync('stored.md', replacer(toMarkdown(afterAst, options)));
-  // fs.writeFileSync(markdownFilename, replacer(toMarkdown(afterAst, options)));
+
+  fs.writeFileSync(markdownFilename, replacer(toMarkdown(afterAst, options)));
 }
 
 main()
