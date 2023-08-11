@@ -31,7 +31,7 @@ const astToMarkdown = (ast) => {
     extensions: [frontmatterToMarkdown(['yaml'])]
   }
 
-  return toMarkdown(ast, options);
+  return replacer(toMarkdown(ast, options));
 }
 
 const transformer = (message) => {
