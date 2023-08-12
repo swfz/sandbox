@@ -122,7 +122,7 @@ const main = async() => {
   const posts = await getSlackMessages(client, slackChannelId, targetDate);
   console.warn(`${posts.length}: 対象日のSlack投稿`);
 
-  const targetHeaderIndex = ast.children.findIndex(item => item.type === 'heading' && item.children[0]?.value === 'Journal');
+  const targetHeaderIndex = ast.children.findIndex(node => node.type === 'heading' && node.children[0]?.value === 'Journal');
   const journals = getJournals(ast.children[targetHeaderIndex + 1].children);
   console.warn(`${journals.length}: Journal`);
 

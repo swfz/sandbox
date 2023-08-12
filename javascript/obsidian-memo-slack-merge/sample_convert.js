@@ -9,11 +9,20 @@ const replacer = (str) => {
   return str.replace(/\\\[/g, '[').replace(/\\_/g, '_').replace(/\\&/g, '&').replace(/\\\*/g, '*');
 }
 
+const removePositionFromAst = (node) => {
+  if (node.children) {
+    node.children.map(node => removePositionFromAst(node));
+  }
+  delete node.position;
+
+  return node;
+}
+
 const ast = fromMarkdown(fs.readFileSync('sample.md'), {
   extensions: [frontmatter(['yaml'])],
   mdastExtensions: [frontmatterFromMarkdown(['yaml'])]
 });
-dir(ast, {depth: null});
+dir(removePositionFromAst(ast), {depth: null});
 const options = {
   bullet: '-',
   extensions: [frontmatterToMarkdown(['yaml'])]

@@ -7,7 +7,7 @@ import * as fs from 'fs'
 import { dir } from 'console';
 
 const replacer = (str) => {
-  return str.replace(/\\\[/g, '[').replace(/\\_/g, '_');
+  return str.replace(/\\\[/g, '[').replace(/\\_/g, '_').replace(/\\&/g, '&').replace(/\\\*/g, '*');
 }
 
 const ast = fromMarkdown(fs.readFileSync('sample.md'), {
@@ -16,22 +16,17 @@ const ast = fromMarkdown(fs.readFileSync('sample.md'), {
 });
 dir(ast, {depth: null});
 
-const children = ast.children.reduce((acc, item, i, array) => {
+const children = ast.children.map(node => {
   // change frontmatter value
-  if (item.type === 'yaml') {
-    const data = yaml.load(item.value);
-    dir(item);
-    dir(data);
+  if (node.type === 'yaml') {
+    const frontmatter = yaml.load(node.value);
+    const mergedFrontmatter = {...frontmatter, ...{added: 'AddedValue!!'}};
 
-    data['added'] = 'AddedValue!';
-    const mergedItem = {...item, ...{value: yaml.dump(data)}};
-    dir(mergedItem)
-
-    return [...acc, mergedItem];
+    return {...node, ...{value: yaml.dump(mergedFrontmatter)}};
   }
 
-  return [...acc, item];
-}, []);
+  return node;
+});
 
 const afterAst = { ...ast, ...{children}};
 

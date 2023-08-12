@@ -5,10 +5,6 @@ import {frontmatterFromMarkdown, frontmatterToMarkdown} from 'mdast-util-frontma
 import * as fs from 'fs'
 import { dir } from 'console';
 
-const replacer = (str) => {
-  return str.replace(/\\\[/g, '[').replace(/\\_/g, '_').replace(/\\&/g, '&').replace(/\\\*/g, '*');
-}
-
 const createContentsAst = (contents) => {
   const items = contents.map((item) => {
     return {
@@ -59,10 +55,10 @@ const ast = fromMarkdown(fs.readFileSync('sample.md'), {
 });
 dir(ast, {depth: null});
 
-const targetHeaderIndex = ast.children.findIndex((item) => item.type === 'heading' && item.children[0]?.value === 'Tasks');
+const targetHeaderIndex = ast.children.findIndex(node => node.type === 'heading' && node.children[0]?.value === 'Tasks');
 const contentsAst = createContentsAst(contents);
 
-const children = targetHeaderIndex === -1 ? [...ast.children, contentsAst] : [
+const children = targetHeaderIndex === -1 ? [...ast.children, contentsHeadingAst, contentsAst] : [
   ...ast.children.slice(0, targetHeaderIndex),
   contentsHeadingAst,
   contentsAst,
@@ -75,5 +71,10 @@ const options = {
   bullet: '-',
   extensions: [frontmatterToMarkdown(['yaml'])]
 }
+
+const replacer = (str) => {
+  return str.replace(/\\\[/g, '[').replace(/\\_/g, '_').replace(/\\&/g, '&').replace(/\\\*/g, '*');
+}
+
 console.log(replacer(toMarkdown(afterAst, options)))
 fs.writeFileSync('sample_stored.md', replacer(toMarkdown(afterAst, options)));

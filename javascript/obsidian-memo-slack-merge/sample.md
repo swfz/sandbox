@@ -14,6 +14,9 @@ hoge_fuga
 - b#hoge
     - c
 
+
+## 記号
+### エスケープチェック
 'hoge'
 
 "fuga"
@@ -29,8 +32,6 @@ a < 3
 b > 3
 
 https://example.com?hoge=1&fuga=2
-
-https://www.youtube.com/watch?v=OLeHLjJbnTY
 
 ## Tasks
 - [ ] TaskA
