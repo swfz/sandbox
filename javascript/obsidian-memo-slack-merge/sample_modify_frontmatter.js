@@ -20,7 +20,10 @@ const children = ast.children.map(node => {
   // change frontmatter value
   if (node.type === 'yaml') {
     const frontmatter = yaml.load(node.value);
-    const mergedFrontmatter = {...frontmatter, ...{added: 'AddedValue!!'}};
+    const mergedFrontmatter = {...frontmatter, ...{added: '2023-08-01', empty: '', month: '2023-08'}};
+
+    console.log('yaml =========================');
+    console.log(yaml.dump(mergedFrontmatter));
 
     return {...node, ...{value: yaml.dump(mergedFrontmatter)}};
   }
@@ -35,6 +38,7 @@ const options = {
   extensions: [frontmatterToMarkdown(['yaml'])]
 }
 
+console.log('markdown =========================');
 console.log(replacer(toMarkdown(afterAst, options)))
 
 fs.writeFileSync('sample_stored.md', replacer(toMarkdown(afterAst, options)));
