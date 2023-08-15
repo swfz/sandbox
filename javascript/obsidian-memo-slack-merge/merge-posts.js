@@ -89,7 +89,7 @@ const createJournalAst = (posts) => {
 }
 
 const getJournals = (journals) => {
-  return journals.length > 0 ? journals.map(j => toMarkdown(j.children[0]).replace(/\n$/, '')) : [];
+  return journals.chilren && journals.children.length > 0 ? journals.map(j => toMarkdown(j.children[0]).replace(/\n$/, '')) : [];
 }
 
 const comparePost = (a, b, targetDate) => {
