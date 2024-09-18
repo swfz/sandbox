@@ -1,0 +1,32 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    algolia (3.3.2)
+      base64 (>= 0.2.0, < 1)
+      faraday (>= 1.0.1, < 3.0)
+      faraday-net_http_persistent (>= 0.15, < 3)
+      net-http-persistent
+    awesome_print (1.9.2)
+    base64 (0.2.0)
+    connection_pool (2.4.1)
+    faraday (2.8.1)
+      base64
+      faraday-net_http (>= 2.0, < 3.1)
+      ruby2_keywords (>= 0.0.4)
+    faraday-net_http (3.0.2)
+    faraday-net_http_persistent (2.2.0)
+      faraday (~> 2.5)
+      net-http-persistent (>= 4.0.4, < 5)
+    net-http-persistent (4.0.4)
+      connection_pool (~> 2.2)
+    ruby2_keywords (0.0.5)
+
+PLATFORMS
+  x86_64-linux
+
+DEPENDENCIES
+  algolia
+  awesome_print
+
+BUNDLED WITH
+   2.3.13
