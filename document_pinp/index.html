@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document Picture-in-Picture サンプル</title>
+  <style>
+    #pip-content {
+      width: 400px;
+      height: 300px;
+      background-color: lightblue;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      border: 2px solid #007bff;
+      border-radius: 8px;
+    }
+    button {
+      margin: 10px;
+      padding: 10px 20px;
+      font-size: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>Document Picture-in-Picture デモ</h1>
+  <div id="container">
+    <div id="pip-content">
+      <h1>ピクチャインピクチャで表示される内容</h1>
+    </div>
+  </div>
+  <button id="pip-button">ピクチャインピクチャを開始</button>
+  <script>
+    const pipButton = document.getElementById("pip-button");
+    const pipContent = document.getElementById("pip-content");
+
+    pipButton.addEventListener("click", async () => {
+      try {
+        if (document.pictureInPictureElement) {
+          // 終了
+          await document.exitPictureInPicture();
+          pipButton.textContent = "ピクチャインピクチャを開始";
+        } else {
+          // Picture-in-picture開始
+          const pipWindow = await documentPictureInPicture.requestWindow({
+            width: pipContent.clientWidth,
+            height: pipContent.clientHeight,
+            disallowReturnToOpener: true
+          });
+          pipWindow.document.body.append(pipContent);
+          [...document.styleSheets].forEach((styleSheet) => {
+            try {
+              const cssRules = [...styleSheet.cssRules].map((rule) => rule.cssText).join('');
+              const style = document.createElement('style');
+
+              style.textContent = cssRules;
+              pipWindow.document.head.appendChild(style);
+            } catch (e) {
+              const link = document.createElement('link');
+
+              link.rel = 'stylesheet';
+              link.type = styleSheet.type;
+              link.media = styleSheet.media;
+              link.href = styleSheet.href;
+              pipWindow.document.head.appendChild(link);
+            }
+          });
+
+          // 閉じたときの処理
+          pipWindow.addEventListener("pagehide", (event) => {
+            const container = document.querySelector("#container");
+            const content = event.target.querySelector("#pip-content");
+            container.append(content);
+          });
+        }
+      } catch (error) {
+        console.error("ピクチャインピクチャの操作に失敗しました:", error);
+      }
+    });
+  </script>
+</body>
+</html>
